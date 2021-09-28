@@ -10,6 +10,7 @@ import io.opentelemetry.api.metrics.BoundLongCounter;
 import io.opentelemetry.api.metrics.GlobalMeterProvider;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
+import io.opentelemetry.exporter.otlp.internal.JsonProtoRequestBody;
 import io.opentelemetry.exporter.otlp.internal.ProtoRequestBody;
 import io.opentelemetry.exporter.otlp.internal.grpc.GrpcStatusUtil;
 import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
@@ -84,7 +85,7 @@ public final class OtlpHttpJsonSpanExporter implements SpanExporter {
     if (headers != null) {
       requestBuilder.headers(headers);
     }
-    RequestBody requestBody = new ProtoRequestBody(exportRequest);
+    RequestBody requestBody = new JsonProtoRequestBody(exportRequest);
     if (compressionEnabled) {
       requestBuilder.addHeader("Content-Encoding", "gzip");
       requestBuilder.post(gzipRequestBody(requestBody));
