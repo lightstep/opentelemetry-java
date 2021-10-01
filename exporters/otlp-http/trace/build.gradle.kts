@@ -3,6 +3,14 @@ plugins {
   id("otel.publish-conventions")
 
   id("otel.animalsniffer-conventions")
+
+}
+
+tasks.withType<Test> {
+    this.testLogging {
+        outputs.upToDateWhen {false}
+        this.showStandardStreams = true
+    }
 }
 
 description = "OpenTelemetry Protocol HTTP Trace Exporter"

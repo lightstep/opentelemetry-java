@@ -83,14 +83,14 @@ class OtlpHttpJsonSpanExporterTest {
       };
 
   @RegisterExtension
-  LogCapturer logs = LogCapturer.create().captureForType(OtlpHttpSpanExporter.class);
+  LogCapturer logs = LogCapturer.create().captureForType(OtlpHttpJsonSpanExporter.class);
 
-  private OtlpHttpSpanExporterBuilder builder;
+  private OtlpHttpJsonSpanExporterBuilder builder;
 
   @BeforeEach
   void setup() {
     builder =
-        OtlpHttpSpanExporter.builder()
+        OtlpHttpJsonSpanExporter.builder()
             .setEndpoint("http://localhost:" + server.httpPort() + "/v1/traces")
             .addHeader("foo", "bar");
   }
@@ -98,33 +98,33 @@ class OtlpHttpJsonSpanExporterTest {
   @Test
   @SuppressWarnings("PreferJavaTimeOverload")
   void invalidConfig() {
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setTimeout(-1, TimeUnit.MILLISECONDS))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setTimeout(-1, TimeUnit.MILLISECONDS))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("timeout must be non-negative");
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setTimeout(1, null))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setTimeout(1, null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("unit");
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setTimeout(null))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setTimeout(null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("timeout");
 
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setEndpoint(null))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setEndpoint(null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("endpoint");
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setEndpoint("😺://localhost"))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setEndpoint("😺://localhost"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Invalid endpoint, must be a URL: 😺://localhost");
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setEndpoint("localhost"))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setEndpoint("localhost"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Invalid endpoint, must start with http:// or https://: localhost");
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setEndpoint("gopher://localhost"))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setEndpoint("gopher://localhost"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Invalid endpoint, must start with http:// or https://: gopher://localhost");
 
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setCompression(null))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setCompression(null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("compressionMethod");
-    assertThatThrownBy(() -> OtlpHttpSpanExporter.builder().setCompression("foo"))
+    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setCompression("foo"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Unsupported compression method. Supported compression methods include: gzip.");
   }
@@ -132,7 +132,7 @@ class OtlpHttpJsonSpanExporterTest {
   @Test
   void testExportUncompressed() {
     server.enqueue(successResponse());
-    OtlpHttpSpanExporter exporter = builder.build();
+    OtlpHttpJsonSpanExporter exporter = builder.build();
 
     ExportTraceServiceRequest payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
     RecordedRequest recorded = server.takeRequest();
@@ -147,7 +147,7 @@ class OtlpHttpJsonSpanExporterTest {
   @Test
   void testExportTls() {
     server.enqueue(successResponse());
-    OtlpHttpSpanExporter exporter =
+    OtlpHttpJsonSpanExporter exporter =
         builder
             .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
             .setTrustedCertificates(
@@ -167,7 +167,7 @@ class OtlpHttpJsonSpanExporterTest {
   @Test
   void testExportGzipCompressed() {
     server.enqueue(successResponse());
-    OtlpHttpSpanExporter exporter = builder.setCompression("gzip").build();
+    OtlpHttpJsonSpanExporter exporter = builder.setCompression("gzip").build();
 
     ExportTraceServiceRequest payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
     AggregatedHttpRequest request = server.takeRequest().request();
@@ -208,7 +208,7 @@ class OtlpHttpJsonSpanExporterTest {
         buildResponse(
             HttpStatus.INTERNAL_SERVER_ERROR,
             Status.newBuilder().setMessage("Server error!").build()));
-    OtlpHttpSpanExporter exporter = builder.build();
+    OtlpHttpJsonSpanExporter exporter = builder.build();
 
     exportAndAssertResult(exporter, /* expectedResult= */ false);
     LoggingEvent log =
@@ -221,7 +221,7 @@ class OtlpHttpJsonSpanExporterTest {
   void testServerErrorParseError() {
     server.enqueue(
         HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_PROTOBUF, "Server error!"));
-    OtlpHttpSpanExporter exporter = builder.build();
+    OtlpHttpJsonSpanExporter exporter = builder.build();
 
     exportAndAssertResult(exporter, /* expectedResult= */ false);
     LoggingEvent log =
@@ -231,7 +231,7 @@ class OtlpHttpJsonSpanExporterTest {
   }
 
   private static ExportTraceServiceRequest exportAndAssertResult(
-      OtlpHttpSpanExporter otlpHttpSpanExporter, boolean expectedResult) {
+      OtlpHttpJsonSpanExporter otlpHttpSpanExporter, boolean expectedResult) {
     List<SpanData> spans = Collections.singletonList(generateFakeSpan());
     CompletableResultCode resultCode = otlpHttpSpanExporter.export(spans);
     resultCode.join(10, TimeUnit.SECONDS);
