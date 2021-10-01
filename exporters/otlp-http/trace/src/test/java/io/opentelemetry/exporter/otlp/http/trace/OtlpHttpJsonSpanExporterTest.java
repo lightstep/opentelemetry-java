@@ -5,6 +5,9 @@
 
 package io.opentelemetry.exporter.otlp.http.trace;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.rpc.Status;
@@ -30,14 +33,6 @@ import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
 import io.opentelemetry.sdk.testing.trace.TestSpanData;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.StatusData;
-import okhttp3.tls.HeldCertificate;
-import okio.Buffer;
-import okio.GzipSource;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.slf4j.event.Level;
-import org.slf4j.event.LoggingEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -49,9 +44,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import okhttp3.tls.HeldCertificate;
+import okio.Buffer;
+import okio.GzipSource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.slf4j.event.LoggingEvent;
 
 class OtlpHttpJsonSpanExporterTest {
 
