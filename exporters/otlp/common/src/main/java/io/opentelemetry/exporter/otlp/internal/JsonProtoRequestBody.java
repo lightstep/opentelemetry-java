@@ -5,11 +5,10 @@
 
 package io.opentelemetry.exporter.otlp.internal;
 
+import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
-
-import java.io.IOException;
 
 /**
  * A {@link RequestBody} for reading from a {@link Marshaler}.
