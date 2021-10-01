@@ -5,20 +5,19 @@
 
 package io.opentelemetry.exporter.otlp.http.trace;
 
-import io.opentelemetry.exporter.otlp.internal.TlsUtil;
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
+import static io.opentelemetry.api.internal.Utils.checkArgument;
+import static java.util.Objects.requireNonNull;
 
-import javax.annotation.Nullable;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.X509TrustManager;
+import io.opentelemetry.exporter.otlp.internal.TlsUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-
-import static io.opentelemetry.api.internal.Utils.checkArgument;
-import static java.util.Objects.requireNonNull;
+import javax.annotation.Nullable;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.X509TrustManager;
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
 
 /** Builder utility for {@link OtlpHttpSpanExporter}. */
 public final class OtlpHttpJsonSpanExporterBuilder {

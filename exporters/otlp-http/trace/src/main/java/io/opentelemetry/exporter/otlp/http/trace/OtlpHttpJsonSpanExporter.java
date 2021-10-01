@@ -17,6 +17,12 @@ import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.internal.ThrottlingLogger;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -29,12 +35,6 @@ import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.GzipSink;
 import okio.Okio;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /** Exports spans using OTLP via HTTP, using OpenTelemetry's protobuf model. */
 @ThreadSafe
