@@ -238,9 +238,9 @@ class OtlpHttpJsonSpanExporterTest {
   }
 
   private static ExportTraceServiceRequest exportAndAssertResult(
-      OtlpHttpJsonSpanExporter otlpHttpSpanExporter, boolean expectedResult) {
+      OtlpHttpJsonSpanExporter otlpHttpJsonSpanExporter, boolean expectedResult) {
     List<SpanData> spans = Collections.singletonList(generateFakeSpan());
-    CompletableResultCode resultCode = otlpHttpSpanExporter.export(spans);
+    CompletableResultCode resultCode = otlpHttpJsonSpanExporter.export(spans);
     resultCode.join(10, TimeUnit.SECONDS);
     assertThat(resultCode.isSuccess()).isEqualTo(expectedResult);
     List<ResourceSpans> resourceSpans =
