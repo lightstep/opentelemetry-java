@@ -55,8 +55,8 @@ import org.slf4j.event.LoggingEvent;
 
 class OtlpHttpJsonSpanExporterTest {
 
-  private static final MediaType APPLICATION_PROTOBUF =
-      MediaType.create("application", "x-protobuf");
+  private static final MediaType APPLICATION_JSON =
+      MediaType.create("application", "json");
   private static final HeldCertificate HELD_CERTIFICATE;
 
   static {
@@ -187,7 +187,7 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(request.method()).isEqualTo(HttpMethod.POST);
     assertThat(request.path()).isEqualTo("/v1/traces");
     assertThat(request.headers().get("foo")).isEqualTo("bar");
-    assertThat(request.headers().get("Content-Type")).isEqualTo(APPLICATION_PROTOBUF.toString());
+    assertThat(request.headers().get("Content-Type")).isEqualTo(APPLICATION_JSON.toString());
   }
 
   private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
@@ -227,7 +227,7 @@ class OtlpHttpJsonSpanExporterTest {
   @Test
   void testServerErrorParseError() {
     server.enqueue(
-        HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_PROTOBUF, "Server error!"));
+        HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_JSON, "Server error!"));
     OtlpHttpJsonSpanExporter exporter = builder.build();
 
     exportAndAssertResult(exporter, /* expectedResult= */ false);
@@ -266,7 +266,7 @@ class OtlpHttpJsonSpanExporterTest {
   }
 
   private static <T extends Message> HttpResponse buildResponse(HttpStatus httpStatus, T message) {
-    return HttpResponse.of(httpStatus, APPLICATION_PROTOBUF, message.toByteArray());
+    return HttpResponse.of(httpStatus, APPLICATION_JSON, message.toByteArray());
   }
 
   private static SpanData generateFakeSpan() {
