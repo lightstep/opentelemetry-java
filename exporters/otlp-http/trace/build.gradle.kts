@@ -19,6 +19,8 @@ otelJava.moduleName.set("io.opentelemetry.exporter.otlp.http.trace")
 dependencies {
   api(project(":sdk:trace"))
 
+  implementation("com.fasterxml.jackson.core:jackson-core")
+
   implementation(project(":exporters:otlp:common"))
 
   implementation("com.squareup.okhttp3:okhttp")
@@ -30,4 +32,5 @@ dependencies {
   testImplementation("com.google.api.grpc:proto-google-common-protos")
   testImplementation("com.linecorp.armeria:armeria-junit5")
   testImplementation("com.squareup.okhttp3:okhttp-tls")
+
 }
