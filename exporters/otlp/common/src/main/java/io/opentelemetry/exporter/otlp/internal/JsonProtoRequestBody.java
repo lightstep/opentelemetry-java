@@ -18,7 +18,7 @@ import okio.BufferedSink;
  */
 public final class JsonProtoRequestBody extends RequestBody {
 
-  private static final MediaType PROTOBUF_MEDIA_TYPE = MediaType.parse("application/x-protobuf");
+  private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json");
 
   private final Marshaler marshaler;
   private final int contentLength;
@@ -36,7 +36,7 @@ public final class JsonProtoRequestBody extends RequestBody {
 
   @Override
   public MediaType contentType() {
-    return PROTOBUF_MEDIA_TYPE;
+    return JSON_MEDIA_TYPE;
   }
 
   @Override
