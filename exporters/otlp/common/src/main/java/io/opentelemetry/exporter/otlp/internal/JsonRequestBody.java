@@ -16,15 +16,15 @@ import okio.BufferedSink;
  * <p>This class is internal and is hence not for public use. Its APIs are unstable and can change
  * at any time.
  */
-public final class JsonProtoRequestBody extends RequestBody {
+public final class JsonRequestBody extends RequestBody {
 
   private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json");
 
   private final Marshaler marshaler;
   private final int contentLength;
 
-  /** Creates a new {@link JsonProtoRequestBody}. */
-  public JsonProtoRequestBody(Marshaler marshaler) {
+  /** Creates a new {@link JsonRequestBody}. */
+  public JsonRequestBody(Marshaler marshaler) {
     this.marshaler = marshaler;
     contentLength = marshaler.getBinarySerializedSize();
   }
