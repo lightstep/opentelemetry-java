@@ -12,10 +12,8 @@ import io.opentelemetry.api.metrics.BoundLongCounter;
 import io.opentelemetry.api.metrics.GlobalMeterProvider;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
-import io.opentelemetry.exporter.otlp.internal.JsonRequestBody;
 import io.opentelemetry.exporter.otlp.internal.grpc.GrpcStatusUtil;
 import io.opentelemetry.exporter.otlp.internal.traces.ResourceSpansMarshaler;
-import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.internal.ThrottlingLogger;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -105,13 +103,11 @@ public final class OtlpHttpJsonSpanExporter implements SpanExporter {
         continue;
       }
 
-      if (messageBodyStringBuilder.length() > 1)
-      {
+      if (messageBodyStringBuilder.length() > 1) {
         messageBodyStringBuilder.append(',');
       }
 
       messageBodyStringBuilder.append(sw.getAndClear());
-
     }
 
     messageBodyStringBuilder.append(']');
@@ -122,7 +118,9 @@ public final class OtlpHttpJsonSpanExporter implements SpanExporter {
     if (headers != null) {
       requestBuilder.headers(headers);
     }
-    RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), messageBodyStringBuilder.toString());
+    RequestBody requestBody =
+        RequestBody.create(
+            MediaType.parse("application/json"), messageBodyStringBuilder.toString());
     if (compressionEnabled) {
       requestBuilder.addHeader("Content-Encoding", "gzip");
       requestBuilder.post(gzipRequestBody(requestBody));

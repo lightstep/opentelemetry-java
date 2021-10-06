@@ -55,8 +55,7 @@ import org.slf4j.event.LoggingEvent;
 
 class OtlpHttpJsonSpanExporterTest {
 
-  private static final MediaType APPLICATION_JSON =
-      MediaType.create("application", "json");
+  private static final MediaType APPLICATION_JSON = MediaType.create("application", "json");
   private static final HeldCertificate HELD_CERTIFICATE;
 
   static {
@@ -98,7 +97,8 @@ class OtlpHttpJsonSpanExporterTest {
   @Test
   @SuppressWarnings("PreferJavaTimeOverload")
   void invalidConfig() {
-    assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setTimeout(-1, TimeUnit.MILLISECONDS))
+    assertThatThrownBy(
+            () -> OtlpHttpJsonSpanExporter.builder().setTimeout(-1, TimeUnit.MILLISECONDS))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("timeout must be non-negative");
     assertThatThrownBy(() -> OtlpHttpJsonSpanExporter.builder().setTimeout(1, null))

@@ -3,14 +3,13 @@ plugins {
   id("otel.publish-conventions")
 
   id("otel.animalsniffer-conventions")
-
 }
 
 tasks.withType<Test> {
-    this.testLogging {
-        outputs.upToDateWhen {false}
-        this.showStandardStreams = true
-    }
+  this.testLogging {
+    outputs.upToDateWhen { false }
+    this.showStandardStreams = true
+  }
 }
 
 description = "OpenTelemetry Protocol HTTP Trace Exporter"
@@ -32,5 +31,4 @@ dependencies {
   testImplementation("com.google.api.grpc:proto-google-common-protos")
   testImplementation("com.linecorp.armeria:armeria-junit5")
   testImplementation("com.squareup.okhttp3:okhttp-tls")
-
 }
