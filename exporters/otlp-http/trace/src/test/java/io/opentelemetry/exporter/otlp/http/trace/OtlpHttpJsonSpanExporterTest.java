@@ -55,7 +55,7 @@ import org.slf4j.event.LoggingEvent;
 
 class OtlpHttpJsonSpanExporterTest {
 
-  private static final MediaType APPLICATION_JSON = MediaType.create("application", "json");
+  private static final MediaType APPLICATION_JSON = MediaType.create("application", "json").withCharset(StandardCharsets.UTF_8);
   private static final HeldCertificate HELD_CERTIFICATE;
 
   static {
@@ -138,7 +138,7 @@ class OtlpHttpJsonSpanExporterTest {
     RecordedRequest recorded = server.takeRequest();
     AggregatedHttpRequest request = recorded.request();
     assertRequestCommon(request);
-    System.out.println("\n\n----------\n");
+    System.out.println("\n\n----------");
     try {
       System.out.write(request.content().array());
     } catch (IOException e) {
