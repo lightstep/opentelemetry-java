@@ -12,8 +12,11 @@ import io.opentelemetry.api.metrics.BoundLongCounter;
 import io.opentelemetry.api.metrics.GlobalMeterProvider;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
+import io.opentelemetry.exporter.otlp.internal.ProtoJsonRequestBody;
+import io.opentelemetry.exporter.otlp.internal.ProtoRequestBody;
 import io.opentelemetry.exporter.otlp.internal.grpc.GrpcStatusUtil;
 import io.opentelemetry.exporter.otlp.internal.traces.ResourceSpansMarshaler;
+import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.internal.ThrottlingLogger;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -87,40 +90,13 @@ public final class OtlpHttpJsonSpanExporter implements SpanExporter {
   public CompletableResultCode export(Collection<SpanData> spans) {
     spansSeen.add(spans.size());
 
-    // compose string message body with all the spans as JSON within JSON array
-
-    StringBuilder messageBodyStringBuilder = new StringBuilder();
-    messageBodyStringBuilder.append('[');
-
-    ResourceSpansMarshaler[] allResourceSpans = ResourceSpansMarshaler.create(spans);
-    for (ResourceSpansMarshaler resourceSpans : allResourceSpans) {
-      SegmentedStringWriter sw =
-          new SegmentedStringWriter(JsonUtil.JSON_FACTORY._getBufferRecycler());
-      try (JsonGenerator gen = JsonUtil.create(sw)) {
-        resourceSpans.writeJsonTo(gen);
-      } catch (IOException e) {
-        // Shouldn't happen in practice, just skip it.
-        continue;
-      }
-
-      if (messageBodyStringBuilder.length() > 1) {
-        messageBodyStringBuilder.append(',');
-      }
-
-      messageBodyStringBuilder.append(sw.getAndClear());
-    }
-
-    messageBodyStringBuilder.append(']');
-
-    // create request builder and populate request body
+    TraceRequestMarshaler exportRequest = TraceRequestMarshaler.create(spans);
 
     Request.Builder requestBuilder = new Request.Builder().url(endpoint);
     if (headers != null) {
       requestBuilder.headers(headers);
     }
-    RequestBody requestBody =
-        RequestBody.create(
-            MediaType.parse("application/json"), messageBodyStringBuilder.toString());
+    RequestBody requestBody = new ProtoJsonRequestBody(exportRequest);
     if (compressionEnabled) {
       requestBuilder.addHeader("Content-Encoding", "gzip");
       requestBuilder.post(gzipRequestBody(requestBody));

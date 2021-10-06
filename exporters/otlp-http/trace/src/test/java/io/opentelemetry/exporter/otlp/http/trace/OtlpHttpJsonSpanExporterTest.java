@@ -138,14 +138,10 @@ class OtlpHttpJsonSpanExporterTest {
     RecordedRequest recorded = server.takeRequest();
     AggregatedHttpRequest request = recorded.request();
     assertRequestCommon(request);
-    System.out.println("\n\n----------");
-    try {
-      System.out.write(request.content().array());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    System.out.println("\n\n----------\n");
+    System.out.println(request.content().toString());
     System.out.println("\n----------\n\n");
-    assertThat(parseRequestBody(request.content().array())).isEqualTo(payload);
+    assertThat(request.content().array()).isEqualTo(payload);
 
     // OkHttp does not support HTTP/2 upgrade on plaintext.
     assertThat(recorded.context().sessionProtocol().isMultiplex()).isFalse();
