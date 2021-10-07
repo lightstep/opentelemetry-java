@@ -20,33 +20,32 @@ import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.mock.MockWebServerExtension;
 import com.linecorp.armeria.testing.junit5.server.mock.RecordedRequest;
 import io.github.netmikey.logunit.api.LogCapturer;
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.TraceFlags;
 import io.opentelemetry.api.trace.TraceState;
-import io.opentelemetry.exporter.otlp.internal.traces.ResourceSpansMarshaler;
+import io.opentelemetry.exporter.otlp.internal.ProtoJsonRequestBody;
+import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
-import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
 import io.opentelemetry.sdk.testing.trace.TestSpanData;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.StatusData;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
+import okhttp3.RequestBody;
 import okhttp3.tls.HeldCertificate;
 import okio.Buffer;
+import okio.BufferedSink;
 import okio.GzipSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +54,8 @@ import org.slf4j.event.Level;
 import org.slf4j.event.LoggingEvent;
 
 class OtlpHttpJsonSpanExporterTest {
+
+  private static final Logger logger = Logger.getLogger(GlobalOpenTelemetry.class.getName());
 
   private static final MediaType APPLICATION_JSON = MediaType.create("application", "json");
   private static final HeldCertificate HELD_CERTIFICATE;
@@ -135,17 +136,31 @@ class OtlpHttpJsonSpanExporterTest {
     server.enqueue(successResponse());
     OtlpHttpJsonSpanExporter exporter = builder.build();
 
-    ExportTraceServiceRequest payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
+    byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
     RecordedRequest recorded = server.takeRequest();
     AggregatedHttpRequest request = recorded.request();
     assertRequestCommon(request);
-    System.out.println("\n\n----------\n");
-    System.out.println(request.content().toString(StandardCharsets.UTF_8));
-    System.out.println("\n----------\n\n");
+
+    // print expected and actual payload
+
+    logger.info
+        (
+            "\n----------\n" +
+                new String(payload, StandardCharsets.UTF_8) +
+                "\n----------\n" +
+                new String(request.content().array(), StandardCharsets.UTF_8) +
+                "\n----------\n"
+        )
+    ;
+
+    // verify expected and actual payload are same
+
     assertThat(request.content().array()).isEqualTo(payload);
 
     // OkHttp does not support HTTP/2 upgrade on plaintext.
+
     assertThat(recorded.context().sessionProtocol().isMultiplex()).isFalse();
+
   }
 
   @Test
@@ -158,7 +173,7 @@ class OtlpHttpJsonSpanExporterTest {
                 HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
             .build();
 
-    ExportTraceServiceRequest payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
+    byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
 //    JsonFormat.printToString(protoMessage)
 
     RecordedRequest recorded = server.takeRequest();
@@ -175,11 +190,27 @@ class OtlpHttpJsonSpanExporterTest {
     server.enqueue(successResponse());
     OtlpHttpJsonSpanExporter exporter = builder.setCompression("gzip").build();
 
-    ExportTraceServiceRequest payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
+    byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
     AggregatedHttpRequest request = server.takeRequest().request();
     assertRequestCommon(request);
     assertThat(request.headers().get("Content-Encoding")).isEqualTo("gzip");
-    assertThat(parseRequestBody(gzipDecompress(request.content().array()))).isEqualTo(payload);
+
+    // print expected and actual payload
+
+    logger.info
+        (
+            "\n----------\n" +
+                new String(payload, StandardCharsets.UTF_8) +
+                "\n----------\n" +
+                new String(gzipDecompress(request.content().array()), StandardCharsets.UTF_8) +
+                "\n----------\n"
+        )
+    ;
+
+    // verify expected and actual payload are same
+
+    assertThat(gzipDecompress(request.content().array())).isEqualTo(payload);
+
   }
 
   private static void assertRequestCommon(AggregatedHttpRequest request) {
@@ -236,26 +267,41 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(log.getLevel()).isEqualTo(Level.WARN);
   }
 
-  private static ExportTraceServiceRequest exportAndAssertResult(
+  private static byte[] exportAndAssertResult(
       OtlpHttpJsonSpanExporter otlpHttpJsonSpanExporter, boolean expectedResult) {
     List<SpanData> spans = Collections.singletonList(generateFakeSpan());
     CompletableResultCode resultCode = otlpHttpJsonSpanExporter.export(spans);
-    resultCode.join(10, TimeUnit.SECONDS);
+    resultCode.join(100000, TimeUnit.SECONDS);
     assertThat(resultCode.isSuccess()).isEqualTo(expectedResult);
-    List<ResourceSpans> resourceSpans =
-        Arrays.stream(ResourceSpansMarshaler.create(spans))
-            .map(
-                marshaler -> {
-                  ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                  try {
-                    marshaler.writeBinaryTo(bos);
-                    return ResourceSpans.parseFrom(bos.toByteArray());
-                  } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                  }
-                })
-            .collect(Collectors.toList());
-    return ExportTraceServiceRequest.newBuilder().addAllResourceSpans(resourceSpans).build();
+
+    // create expected payload
+
+    TraceRequestMarshaler exportRequest = TraceRequestMarshaler.create(spans);
+    RequestBody requestBody = new ProtoJsonRequestBody(exportRequest);
+    BufferedSink bufferedSink = new Buffer();
+    try {
+      requestBody.writeTo(bufferedSink);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    byte[] payload = bufferedSink.buffer().readByteArray();
+
+    return payload;
+
+//    List<ResourceSpans> resourceSpans =
+//        Arrays.stream(ResourceSpansMarshaler.create(spans))
+//            .map(
+//                marshaler -> {
+//                  ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//                  try {
+//                    marshaler.writeBinaryTo(bos);
+//                    return ResourceSpans.parseFrom(bos.toByteArray());
+//                  } catch (IOException e) {
+//                    throw new UncheckedIOException(e);
+//                  }
+//                })
+//            .collect(Collectors.toList());
+//    return ExportTraceServiceRequest.newBuilder().addAllResourceSpans(resourceSpans).build();
   }
 
   private static HttpResponse successResponse() {
