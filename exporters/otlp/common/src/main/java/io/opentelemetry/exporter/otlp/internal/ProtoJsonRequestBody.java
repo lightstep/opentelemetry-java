@@ -8,6 +8,8 @@ package io.opentelemetry.exporter.otlp.internal;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
+import org.apache.commons.io.output.CountingOutputStream;
+import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.IOException;
 
@@ -19,7 +21,7 @@ import java.io.IOException;
  */
 public final class ProtoJsonRequestBody extends RequestBody {
 
-  private static final MediaType PROTOBUF_MEDIA_TYPE = MediaType.parse("application/x-protobuf");
+  private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json");
 
   private final Marshaler marshaler;
   private final int contentLength;
@@ -27,7 +29,25 @@ public final class ProtoJsonRequestBody extends RequestBody {
   /** Creates a new {@link ProtoJsonRequestBody}. */
   public ProtoJsonRequestBody(Marshaler marshaler) {
     this.marshaler = marshaler;
-    contentLength = marshaler.getBinarySerializedSize();
+
+    // compute content length by writing content to temporary buffer
+
+    CountingOutputStream countingOutputStream = new CountingOutputStream(new NullOutputStream());
+
+    try {
+      this.marshaler.writeJsonTo(countingOutputStream);
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        countingOutputStream.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+    this.contentLength = countingOutputStream.getCount();
+
   }
 
   @Override
@@ -37,7 +57,7 @@ public final class ProtoJsonRequestBody extends RequestBody {
 
   @Override
   public MediaType contentType() {
-    return PROTOBUF_MEDIA_TYPE;
+    return JSON_MEDIA_TYPE;
   }
 
   @Override

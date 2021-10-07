@@ -55,7 +55,7 @@ import org.slf4j.event.LoggingEvent;
 
 class OtlpHttpJsonSpanExporterTest {
 
-  private static final MediaType APPLICATION_JSON = MediaType.create("application", "json").withCharset(StandardCharsets.UTF_8);
+  private static final MediaType APPLICATION_JSON = MediaType.create("application", "json");
   private static final HeldCertificate HELD_CERTIFICATE;
 
   static {
