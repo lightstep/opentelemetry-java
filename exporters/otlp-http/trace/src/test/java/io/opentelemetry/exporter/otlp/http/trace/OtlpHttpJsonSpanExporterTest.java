@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -139,7 +140,7 @@ class OtlpHttpJsonSpanExporterTest {
     AggregatedHttpRequest request = recorded.request();
     assertRequestCommon(request);
     System.out.println("\n\n----------\n");
-    System.out.println(request.content().toString());
+    System.out.println(request.content().toString(StandardCharsets.UTF_8));
     System.out.println("\n----------\n\n");
     assertThat(request.content().array()).isEqualTo(payload);
 
@@ -158,6 +159,8 @@ class OtlpHttpJsonSpanExporterTest {
             .build();
 
     ExportTraceServiceRequest payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
+//    JsonFormat.printToString(protoMessage)
+
     RecordedRequest recorded = server.takeRequest();
     AggregatedHttpRequest request = recorded.request();
     assertRequestCommon(request);
