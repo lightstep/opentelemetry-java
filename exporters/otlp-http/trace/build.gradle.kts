@@ -11,8 +11,6 @@ otelJava.moduleName.set("io.opentelemetry.exporter.otlp.http.trace")
 dependencies {
   api(project(":sdk:trace"))
 
-//  implementation("com.fasterxml.jackson.core:jackson-core")
-//
   implementation(project(":exporters:otlp:common"))
 
   implementation("com.squareup.okhttp3:okhttp")
