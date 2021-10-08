@@ -53,8 +53,8 @@ dependencies {
   jmhImplementation("com.fasterxml.jackson.core:jackson-core")
   jmhRuntimeOnly("io.grpc:grpc-netty")
 
-  implementation("commons-io:commons-io:2.5")
-
+//  implementation("commons-io:commons-io:2.5")
+//
 }
 
 wire {
