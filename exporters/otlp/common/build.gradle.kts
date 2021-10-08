@@ -54,7 +54,6 @@ dependencies {
   jmhRuntimeOnly("io.grpc:grpc-netty")
 
   implementation("commons-io:commons-io:2.5")
-
 }
 
 wire {

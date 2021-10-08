@@ -25,7 +25,6 @@ public final class ProtoJsonRequestBody extends RequestBody {
   /** Creates a new {@link ProtoJsonRequestBody}. */
   public ProtoJsonRequestBody(Marshaler marshaler) {
     this.marshaler = marshaler;
-
   }
 
   @Override

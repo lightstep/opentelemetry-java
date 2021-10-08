@@ -10,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
-import com.google.rpc.Status;
 import com.linecorp.armeria.common.AggregatedHttpRequest;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
@@ -37,7 +36,6 @@ import io.opentelemetry.sdk.trace.data.StatusData;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -50,8 +48,6 @@ import okio.GzipSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.slf4j.event.Level;
-import org.slf4j.event.LoggingEvent;
 
 class OtlpHttpJsonSpanExporterTest {
 
@@ -148,29 +144,28 @@ class OtlpHttpJsonSpanExporterTest {
     // OkHttp does not support HTTP/2 upgrade on plaintext.
 
     assertThat(recorded.context().sessionProtocol().isMultiplex()).isFalse();
-
   }
 
-//  @Test
-//  void testExportTls() {
-//    server.enqueue(successResponse());
-//    OtlpHttpJsonSpanExporter exporter =
-//        builder
-//            .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
-//            .setTrustedCertificates(
-//                HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
-//            .build();
-//
-//    byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
-//    RecordedRequest recorded = server.takeRequest();
-//    AggregatedHttpRequest request = recorded.request();
-//    assertRequestCommon(request);
-//    assertThat(parseRequestBody(request.content().array())).isEqualTo(payload);
-//
-//    // OkHttp does support HTTP/2 upgrade on TLS.
-//    assertThat(recorded.context().sessionProtocol().isMultiplex()).isTrue();
-//  }
-//
+  //  @Test
+  //  void testExportTls() {
+  //    server.enqueue(successResponse());
+  //    OtlpHttpJsonSpanExporter exporter =
+  //        builder
+  //            .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
+  //            .setTrustedCertificates(
+  //                HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
+  //            .build();
+  //
+  //    byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
+  //    RecordedRequest recorded = server.takeRequest();
+  //    AggregatedHttpRequest request = recorded.request();
+  //    assertRequestCommon(request);
+  //    assertThat(parseRequestBody(request.content().array())).isEqualTo(payload);
+  //
+  //    // OkHttp does support HTTP/2 upgrade on TLS.
+  //    assertThat(recorded.context().sessionProtocol().isMultiplex()).isTrue();
+  //  }
+  //
   @Test
   void testExportGzipCompressed() {
     server.enqueue(successResponse());
@@ -184,7 +179,6 @@ class OtlpHttpJsonSpanExporterTest {
     // verify expected and actual payload are same
 
     assertThat(gzipDecompress(request.content().array())).isEqualTo(payload);
-
   }
 
   private static void assertRequestCommon(AggregatedHttpRequest request) {
@@ -213,34 +207,36 @@ class OtlpHttpJsonSpanExporterTest {
     }
   }
 
-//  @Test
-//  void testServerError() {
-//    server.enqueue(
-//        buildResponse(
-//            HttpStatus.INTERNAL_SERVER_ERROR,
-//            Status.newBuilder().setMessage("Server error!").build()));
-//    OtlpHttpJsonSpanExporter exporter = builder.build();
-//
-//    exportAndAssertResult(exporter, /* expectedResult= */ false);
-//    LoggingEvent log =
-//        logs.assertContains(
-//            "Failed to export spans. Server responded with HTTP status code 500. Error message: Server error!");
-//    assertThat(log.getLevel()).isEqualTo(Level.WARN);
-//  }
-//
-//  @Test
-//  void testServerErrorParseError() {
-//    server.enqueue(
-//        HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_JSON, "Server error!"));
-//    OtlpHttpJsonSpanExporter exporter = builder.build();
-//
-//    exportAndAssertResult(exporter, /* expectedResult= */ false);
-//    LoggingEvent log =
-//        logs.assertContains(
-//            "Failed to export spans. Server responded with HTTP status code 500. Error message: Unable to parse response body, HTTP status message:");
-//    assertThat(log.getLevel()).isEqualTo(Level.WARN);
-//  }
-//
+  //  @Test
+  //  void testServerError() {
+  //    server.enqueue(
+  //        buildResponse(
+  //            HttpStatus.INTERNAL_SERVER_ERROR,
+  //            Status.newBuilder().setMessage("Server error!").build()));
+  //    OtlpHttpJsonSpanExporter exporter = builder.build();
+  //
+  //    exportAndAssertResult(exporter, /* expectedResult= */ false);
+  //    LoggingEvent log =
+  //        logs.assertContains(
+  //            "Failed to export spans. Server responded with HTTP status code 500. Error message:
+  // Server error!");
+  //    assertThat(log.getLevel()).isEqualTo(Level.WARN);
+  //  }
+  //
+  //  @Test
+  //  void testServerErrorParseError() {
+  //    server.enqueue(
+  //        HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_JSON, "Server error!"));
+  //    OtlpHttpJsonSpanExporter exporter = builder.build();
+  //
+  //    exportAndAssertResult(exporter, /* expectedResult= */ false);
+  //    LoggingEvent log =
+  //        logs.assertContains(
+  //            "Failed to export spans. Server responded with HTTP status code 500. Error message:
+  // Unable to parse response body, HTTP status message:");
+  //    assertThat(log.getLevel()).isEqualTo(Level.WARN);
+  //  }
+  //
   private static byte[] exportAndAssertResult(
       OtlpHttpJsonSpanExporter otlpHttpJsonSpanExporter, boolean expectedResult) {
     List<SpanData> spans = Collections.singletonList(generateFakeSpan());
@@ -261,7 +257,6 @@ class OtlpHttpJsonSpanExporterTest {
     byte[] payload = bufferedSink.buffer().readByteArray();
 
     return payload;
-
   }
 
   private static HttpResponse successResponse() {
