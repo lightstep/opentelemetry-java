@@ -141,18 +141,6 @@ class OtlpHttpJsonSpanExporterTest {
     AggregatedHttpRequest request = recorded.request();
     assertRequestCommon(request);
 
-    // print expected and actual payload
-
-    logger.info
-        (
-            "\n----------\n" +
-                new String(payload, StandardCharsets.UTF_8) +
-                "\n----------\n" +
-                new String(request.content().array(), StandardCharsets.UTF_8) +
-                "\n----------\n"
-        )
-    ;
-
     // verify expected and actual payload are same
 
     assertThat(request.content().array()).isEqualTo(payload);
@@ -174,8 +162,6 @@ class OtlpHttpJsonSpanExporterTest {
             .build();
 
     byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
-//    JsonFormat.printToString(protoMessage)
-
     RecordedRequest recorded = server.takeRequest();
     AggregatedHttpRequest request = recorded.request();
     assertRequestCommon(request);
@@ -194,18 +180,6 @@ class OtlpHttpJsonSpanExporterTest {
     AggregatedHttpRequest request = server.takeRequest().request();
     assertRequestCommon(request);
     assertThat(request.headers().get("Content-Encoding")).isEqualTo("gzip");
-
-    // print expected and actual payload
-
-    logger.info
-        (
-            "\n----------\n" +
-                new String(payload, StandardCharsets.UTF_8) +
-                "\n----------\n" +
-                new String(gzipDecompress(request.content().array()), StandardCharsets.UTF_8) +
-                "\n----------\n"
-        )
-    ;
 
     // verify expected and actual payload are same
 
@@ -271,7 +245,7 @@ class OtlpHttpJsonSpanExporterTest {
       OtlpHttpJsonSpanExporter otlpHttpJsonSpanExporter, boolean expectedResult) {
     List<SpanData> spans = Collections.singletonList(generateFakeSpan());
     CompletableResultCode resultCode = otlpHttpJsonSpanExporter.export(spans);
-    resultCode.join(100000, TimeUnit.SECONDS);
+    resultCode.join(10, TimeUnit.SECONDS);
     assertThat(resultCode.isSuccess()).isEqualTo(expectedResult);
 
     // create expected payload
@@ -288,20 +262,6 @@ class OtlpHttpJsonSpanExporterTest {
 
     return payload;
 
-//    List<ResourceSpans> resourceSpans =
-//        Arrays.stream(ResourceSpansMarshaler.create(spans))
-//            .map(
-//                marshaler -> {
-//                  ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//                  try {
-//                    marshaler.writeBinaryTo(bos);
-//                    return ResourceSpans.parseFrom(bos.toByteArray());
-//                  } catch (IOException e) {
-//                    throw new UncheckedIOException(e);
-//                  }
-//                })
-//            .collect(Collectors.toList());
-//    return ExportTraceServiceRequest.newBuilder().addAllResourceSpans(resourceSpans).build();
   }
 
   private static HttpResponse successResponse() {

@@ -5,17 +5,13 @@
 
 package io.opentelemetry.exporter.otlp.http.trace;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.BoundLongCounter;
 import io.opentelemetry.api.metrics.GlobalMeterProvider;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.exporter.otlp.internal.ProtoJsonRequestBody;
-import io.opentelemetry.exporter.otlp.internal.ProtoRequestBody;
 import io.opentelemetry.exporter.otlp.internal.grpc.GrpcStatusUtil;
-import io.opentelemetry.exporter.otlp.internal.traces.ResourceSpansMarshaler;
 import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.internal.ThrottlingLogger;

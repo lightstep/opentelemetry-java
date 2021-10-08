@@ -129,8 +129,7 @@ public final class OtlpHttpJsonSpanExporterBuilder {
 
     Headers headers = headersBuilder == null ? null : headersBuilder.build();
 
-    return new OtlpHttpJsonSpanExporter(
-        clientBuilder.build(), endpoint, headers, compressionEnabled);
+    return new OtlpHttpJsonSpanExporter(clientBuilder.build(), endpoint, headers, compressionEnabled);
   }
 
   OtlpHttpJsonSpanExporterBuilder() {}
