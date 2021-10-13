@@ -5,20 +5,11 @@ plugins {
   id("otel.animalsniffer-conventions")
 }
 
-tasks.withType<Test> {
-  this.testLogging {
-    outputs.upToDateWhen { false }
-    this.showStandardStreams = true
-  }
-}
-
 description = "OpenTelemetry Protocol HTTP Trace Exporter"
 otelJava.moduleName.set("io.opentelemetry.exporter.otlp.http.trace")
 
 dependencies {
   api(project(":sdk:trace"))
-
-  implementation("com.fasterxml.jackson.core:jackson-core")
 
   implementation(project(":exporters:otlp:common"))
 
