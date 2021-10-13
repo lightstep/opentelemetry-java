@@ -8,7 +8,6 @@ package io.opentelemetry.exporter.otlp.http.trace;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.linecorp.armeria.common.AggregatedHttpRequest;
 import com.linecorp.armeria.common.HttpMethod;
@@ -19,14 +18,12 @@ import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.mock.MockWebServerExtension;
 import com.linecorp.armeria.testing.junit5.server.mock.RecordedRequest;
 import io.github.netmikey.logunit.api.LogCapturer;
-import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.TraceFlags;
 import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.exporter.otlp.internal.ProtoJsonRequestBody;
 import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
-import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
@@ -39,7 +36,6 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import okhttp3.RequestBody;
 import okhttp3.tls.HeldCertificate;
 import okio.Buffer;
@@ -50,8 +46,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 class OtlpHttpJsonSpanExporterTest {
-
-  private static final Logger logger = Logger.getLogger(GlobalOpenTelemetry.class.getName());
 
   private static final MediaType APPLICATION_JSON = MediaType.create("application", "json");
   private static final HeldCertificate HELD_CERTIFICATE;
@@ -188,14 +182,14 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(request.headers().get("Content-Type")).isEqualTo(APPLICATION_JSON.toString());
   }
 
-  private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
-    try {
-      return ExportTraceServiceRequest.parseFrom(bytes);
-    } catch (InvalidProtocolBufferException e) {
-      throw new IllegalStateException("Unable to parse Protobuf request body.", e);
-    }
-  }
-
+//  private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
+//    try {
+//      return ExportTraceServiceRequest.parseFrom(bytes);
+//    } catch (InvalidProtocolBufferException e) {
+//      throw new IllegalStateException("Unable to parse Protobuf request body.", e);
+//    }
+//  }
+//
   private static byte[] gzipDecompress(byte[] bytes) {
     try {
       Buffer result = new Buffer();
