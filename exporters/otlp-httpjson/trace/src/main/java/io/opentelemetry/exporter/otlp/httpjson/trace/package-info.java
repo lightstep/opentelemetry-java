@@ -5,6 +5,6 @@
 
 /** OpenTelemetry exporter which sends span data to OpenTelemetry collector via OTLP HTTP in JSON format. */
 @ParametersAreNonnullByDefault
-package io.opentelemetry.exporter.otlp.http.json.trace;
+package io.opentelemetry.exporter.otlp.httpjson.trace;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -6,7 +6,7 @@ plugins {
 }
 
 description = "OpenTelemetry Protocol HTTP/JSON Trace Exporter"
-otelJava.moduleName.set("io.opentelemetry.exporter.otlp.http.json.trace")
+otelJava.moduleName.set("io.opentelemetry.exporter.otlp.httpjson.trace")
 
 dependencies {
   api(project(":sdk:trace"))
