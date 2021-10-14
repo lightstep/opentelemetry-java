@@ -19,7 +19,7 @@ import javax.net.ssl.X509TrustManager;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 
-/** Builder utility for {@link OtlpHttpSpanExporter}. */
+/** Builder utility for {@link OtlpHttpJsonSpanExporter}. */
 public final class OtlpHttpJsonSpanExporterBuilder {
 
   private static final long DEFAULT_TIMEOUT_SECS = 10;
