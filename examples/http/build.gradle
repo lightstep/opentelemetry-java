@@ -28,5 +28,6 @@ dependencies {
 
   implementation files("../../exporters/otlp/common/build/classes/java/main")
   implementation files("../../exporters/otlp-http/trace/build/classes/java/main")
+  implementation files("../../exporters/otlp-http-json/trace/build/classes/java/main")
 
 }
