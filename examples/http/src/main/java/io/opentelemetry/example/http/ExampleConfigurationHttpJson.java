@@ -12,12 +12,16 @@ import io.opentelemetry.exporter.logging.LoggingSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
+import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpJsonSpanExporter;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
+import io.opentelemetry.api.common.Attributes;
 
 /**
  * All SDK management takes place here, away from the instrumentation code, which should only access
  * the OpenTelemetry APIs.
  */
-class ExampleConfiguration {
+class ExampleConfigurationHttpJson {
 
   /**
    * Initializes the OpenTelemetry SDK with a logging span exporter and the W3C Trace Context
@@ -26,9 +30,19 @@ class ExampleConfiguration {
    * @return A ready-to-use {@link OpenTelemetry} instance.
    */
   static OpenTelemetry initOpenTelemetry() {
+
+    // create HTTP/JSON exporter
+
+    OtlpHttpJsonSpanExporter otlpHttpJsonSpanExporter =
+        OtlpHttpJsonSpanExporter.builder()
+            .setEndpoint("http://localhost:4318/v1/traces")
+            .addHeader("foo", "bar")
+            .build();
+
     SdkTracerProvider sdkTracerProvider =
         SdkTracerProvider.builder()
-            .addSpanProcessor(SimpleSpanProcessor.create(new LoggingSpanExporter()))
+            .addSpanProcessor(SimpleSpanProcessor.create(otlpHttpJsonSpanExporter))
+            .setResource(Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, "test_http_json")))
             .build();
 
     OpenTelemetrySdk sdk =

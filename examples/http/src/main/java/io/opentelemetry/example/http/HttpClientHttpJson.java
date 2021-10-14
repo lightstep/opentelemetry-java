@@ -25,11 +25,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 
-public final class HttpClient {
+public final class HttpClientHttpJson {
 
   // it's important to initialize the OpenTelemetry SDK as early in your applications lifecycle as
   // possible.
-  private static final OpenTelemetry openTelemetry = ExampleConfiguration.initOpenTelemetry();
+  private static final OpenTelemetry openTelemetry = ExampleConfigurationHttpJson.initOpenTelemetry();
 
   private static final Tracer tracer =
       openTelemetry.getTracer("io.opentelemetry.example.http.HttpClient");
@@ -41,7 +41,7 @@ public final class HttpClient {
   private static final TextMapSetter<HttpURLConnection> setter = URLConnection::setRequestProperty;
 
   private void makeRequest() throws IOException, URISyntaxException {
-    int port = 8080;
+    int port = 8090;
     URL url = new URL("http://127.0.0.1:" + port);
     HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -51,9 +51,20 @@ public final class HttpClient {
     // Name convention for the Span is not yet defined.
     // See: https://github.com/open-telemetry/opentelemetry-specification/issues/270
     Span span = tracer.spanBuilder("/").setSpanKind(SpanKind.CLIENT).startSpan();
+
     try (Scope scope = span.makeCurrent()) {
       span.setAttribute(SemanticAttributes.HTTP_METHOD, "GET");
       span.setAttribute("component", "http");
+
+      // set additional test values
+
+      span.setStatus(StatusCode.OK, "test description");
+      span.setAttribute("attribute_string", "value_string");
+      span.setAttribute("attribute_long", Long.MAX_VALUE);
+      span.setAttribute("attribute_double", Double.MAX_VALUE);
+      span.setAttribute("attribute_boolean", true);
+      span.setAttribute("component1", "test_component");
+
       /*
        Only one of the following is required
          - http.url
@@ -108,7 +119,7 @@ public final class HttpClient {
    * @param args It is not required.
    */
   public static void main(String[] args) {
-    HttpClient httpClient = new HttpClient();
+    HttpClientHttpJson httpClient = new HttpClientHttpJson();
 
     // Perform request every 5s
     Thread t =

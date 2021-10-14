@@ -5,6 +5,12 @@ plugins {
 description = 'OpenTelemetry Examples for HTTP'
 ext.moduleName = "io.opentelemetry.examples.http"
 
+repositories {
+  mavenCentral()
+  gradlePluginPortal()
+  mavenLocal()
+}
+
 dependencies {
     implementation("io.opentelemetry:opentelemetry-api")
     implementation("io.opentelemetry:opentelemetry-sdk")
@@ -13,4 +19,14 @@ dependencies {
     //alpha modules
     implementation("io.opentelemetry:opentelemetry-semconv")
     implementation("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure")
+
+  implementation("com.fasterxml.jackson.core:jackson-core:latest.release")
+  implementation("com.fasterxml.jackson.core:jackson-databind:latest.release")
+
+  implementation("com.squareup.okhttp3:okhttp:latest.release")
+  implementation("com.squareup.okio:okio:latest.release")
+
+  implementation files("../../exporters/otlp/common/build/classes/java/main")
+  implementation files("../../exporters/otlp-http/trace/build/classes/java/main")
+
 }

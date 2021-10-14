@@ -23,14 +23,14 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
-public final class HttpServer {
+public final class HttpServerHttpJson {
   // It's important to initialize your OpenTelemetry SDK as early in your application's lifecycle as
   // possible.
-  private static final OpenTelemetry openTelemetry = ExampleConfiguration.initOpenTelemetry();
+  private static final OpenTelemetry openTelemetry = ExampleConfigurationHttpJson.initOpenTelemetry();
   private static final Tracer tracer =
       openTelemetry.getTracer("io.opentelemetry.example.http.HttpServer");
 
-  private static final int port = 8080;
+  private static final int port = 8090;
   private final com.sun.net.httpserver.HttpServer server;
 
   // Extract the context from http headers
@@ -50,11 +50,11 @@ public final class HttpServer {
         }
       };
 
-  private HttpServer() throws IOException {
+  private HttpServerHttpJson() throws IOException {
     this(port);
   }
 
-  private HttpServer(int port) throws IOException {
+  private HttpServerHttpJson(int port) throws IOException {
     server = com.sun.net.httpserver.HttpServer.create(new InetSocketAddress(port), 0);
     // Test urls
     server.createContext("/", new HelloHandler());
@@ -87,7 +87,7 @@ public final class HttpServer {
          - http.url
         */
         span.setAttribute("http.scheme", "http");
-        span.setAttribute("http.host", "localhost:" + HttpServer.port);
+        span.setAttribute("http.host", "localhost:" + HttpServerHttpJson.port);
         span.setAttribute("http.target", "/");
         // Process the request
         answer(exchange, span);
@@ -126,7 +126,7 @@ public final class HttpServer {
    * @throws Exception Something might go wrong.
    */
   public static void main(String[] args) throws Exception {
-    final HttpServer s = new HttpServer();
+    final HttpServerHttpJson s = new HttpServerHttpJson();
     // Gracefully close the server
     Runtime.getRuntime().addShutdownHook(new Thread(s::stop));
   }
