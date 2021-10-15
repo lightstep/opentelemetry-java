@@ -8,6 +8,7 @@ package io.opentelemetry.exporter.otlp.httpjson.trace;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.linecorp.armeria.common.AggregatedHttpRequest;
 import com.linecorp.armeria.common.HttpMethod;
@@ -24,6 +25,7 @@ import io.opentelemetry.api.trace.TraceFlags;
 import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.exporter.otlp.internal.ProtoJsonRequestBody;
 import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
+import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
@@ -33,6 +35,7 @@ import io.opentelemetry.sdk.trace.data.StatusData;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -140,26 +143,27 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(recorded.context().sessionProtocol().isMultiplex()).isFalse();
   }
 
-  //  @Test
-  //  void testExportTls() {
-  //    server.enqueue(successResponse());
-  //    OtlpHttpJsonSpanExporter exporter =
-  //        builder
-  //            .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
-  //            .setTrustedCertificates(
-  //                HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
-  //            .build();
-  //
-  //    byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
-  //    RecordedRequest recorded = server.takeRequest();
-  //    AggregatedHttpRequest request = recorded.request();
-  //    assertRequestCommon(request);
-  //    assertThat(parseRequestBody(request.content().array())).isEqualTo(payload);
-  //
-  //    // OkHttp does support HTTP/2 upgrade on TLS.
-  //    assertThat(recorded.context().sessionProtocol().isMultiplex()).isTrue();
-  //  }
-  //
+    @Test
+    void testExportTls() {
+      server.enqueue(successResponse());
+      OtlpHttpJsonSpanExporter exporter =
+          builder
+//              .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
+              .setEndpoint("https://127.0.0.1:" + server.httpsPort() + "/v1/traces")
+              .setTrustedCertificates(
+                  HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
+              .build();
+
+      byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
+      RecordedRequest recorded = server.takeRequest();
+      AggregatedHttpRequest request = recorded.request();
+      assertRequestCommon(request);
+      assertThat(request.content().array()).isEqualTo(payload);
+
+      // OkHttp does support HTTP/2 upgrade on TLS.
+      assertThat(recorded.context().sessionProtocol().isMultiplex()).isTrue();
+    }
+
   @Test
   void testExportGzipCompressed() {
     server.enqueue(successResponse());
@@ -182,14 +186,14 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(request.headers().get("Content-Type")).isEqualTo(APPLICATION_JSON.toString());
   }
 
-  //  private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
-  //    try {
-  //      return ExportTraceServiceRequest.parseFrom(bytes);
-  //    } catch (InvalidProtocolBufferException e) {
-  //      throw new IllegalStateException("Unable to parse Protobuf request body.", e);
-  //    }
-  //  }
-  //
+    private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
+      try {
+        return ExportTraceServiceRequest.parseFrom(bytes);
+      } catch (InvalidProtocolBufferException e) {
+        throw new IllegalStateException("Unable to parse Protobuf request body.", e);
+      }
+    }
+
   private static byte[] gzipDecompress(byte[] bytes) {
     try {
       Buffer result = new Buffer();
