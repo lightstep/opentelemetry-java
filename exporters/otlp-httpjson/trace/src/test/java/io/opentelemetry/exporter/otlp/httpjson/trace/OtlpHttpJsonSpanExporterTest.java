@@ -153,7 +153,6 @@ class OtlpHttpJsonSpanExporterTest {
     server.enqueue(successResponse());
     OtlpHttpJsonSpanExporter exporter =
         builder
-            //              .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
             .setEndpoint("https://" + canonicalHostName + ":" + server.httpsPort() + "/v1/traces")
             .setTrustedCertificates(
                 HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
