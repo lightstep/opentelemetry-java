@@ -8,7 +8,6 @@ package io.opentelemetry.exporter.otlp.httpjson.trace;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.rpc.Status;
 import com.linecorp.armeria.common.AggregatedHttpRequest;
@@ -26,7 +25,6 @@ import io.opentelemetry.api.trace.TraceFlags;
 import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.exporter.otlp.internal.ProtoJsonRequestBody;
 import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
-import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
