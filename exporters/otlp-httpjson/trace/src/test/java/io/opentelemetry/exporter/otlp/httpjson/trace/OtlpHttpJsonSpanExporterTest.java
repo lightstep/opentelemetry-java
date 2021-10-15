@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
+import com.google.rpc.Status;
 import com.linecorp.armeria.common.AggregatedHttpRequest;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
@@ -47,6 +48,8 @@ import okio.GzipSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.slf4j.event.LoggingEvent;
 
 class OtlpHttpJsonSpanExporterTest {
 
@@ -205,36 +208,34 @@ class OtlpHttpJsonSpanExporterTest {
     }
   }
 
-  //  @Test
-  //  void testServerError() {
-  //    server.enqueue(
-  //        buildResponse(
-  //            HttpStatus.INTERNAL_SERVER_ERROR,
-  //            Status.newBuilder().setMessage("Server error!").build()));
-  //    OtlpHttpJsonSpanExporter exporter = builder.build();
-  //
-  //    exportAndAssertResult(exporter, /* expectedResult= */ false);
-  //    LoggingEvent log =
-  //        logs.assertContains(
-  //            "Failed to export spans. Server responded with HTTP status code 500. Error message:
-  // Server error!");
-  //    assertThat(log.getLevel()).isEqualTo(Level.WARN);
-  //  }
-  //
-  //  @Test
-  //  void testServerErrorParseError() {
-  //    server.enqueue(
-  //        HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_JSON, "Server error!"));
-  //    OtlpHttpJsonSpanExporter exporter = builder.build();
-  //
-  //    exportAndAssertResult(exporter, /* expectedResult= */ false);
-  //    LoggingEvent log =
-  //        logs.assertContains(
-  //            "Failed to export spans. Server responded with HTTP status code 500. Error message:
-  // Unable to parse response body, HTTP status message:");
-  //    assertThat(log.getLevel()).isEqualTo(Level.WARN);
-  //  }
-  //
+    @Test
+    void testServerError() {
+      server.enqueue(
+          buildResponse(
+              HttpStatus.INTERNAL_SERVER_ERROR,
+              Status.newBuilder().setMessage("Server error!").build()));
+      OtlpHttpJsonSpanExporter exporter = builder.build();
+
+      exportAndAssertResult(exporter, /* expectedResult= */ false);
+      LoggingEvent log =
+          logs.assertContains(
+              "Failed to export spans. Server responded with HTTP status code 500. Error message: Server error!");
+      assertThat(log.getLevel()).isEqualTo(Level.WARN);
+    }
+
+    @Test
+    void testServerErrorParseError() {
+      server.enqueue(
+          HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_JSON, "Server error!"));
+      OtlpHttpJsonSpanExporter exporter = builder.build();
+
+      exportAndAssertResult(exporter, /* expectedResult= */ false);
+      LoggingEvent log =
+          logs.assertContains(
+              "Failed to export spans. Server responded with HTTP status code 500. Error message: Unable to parse response body, HTTP status message:");
+      assertThat(log.getLevel()).isEqualTo(Level.WARN);
+    }
+
   private static byte[] exportAndAssertResult(
       OtlpHttpJsonSpanExporter otlpHttpJsonSpanExporter, boolean expectedResult) {
     List<SpanData> spans = Collections.singletonList(generateFakeSpan());
