@@ -8,6 +8,7 @@ package io.opentelemetry.exporter.otlp.httpjson.trace;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.rpc.Status;
 import com.linecorp.armeria.common.AggregatedHttpRequest;
@@ -25,6 +26,7 @@ import io.opentelemetry.api.trace.TraceFlags;
 import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.exporter.otlp.internal.ProtoJsonRequestBody;
 import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
+import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
@@ -88,7 +90,7 @@ class OtlpHttpJsonSpanExporterTest {
   void setup() {
     builder =
         OtlpHttpJsonSpanExporter.builder()
-            .setEndpoint("https://" + canonicalHostName + ":" + server.httpsPort() + "/v1/traces")
+            .setEndpoint("http://" + canonicalHostName + ":" + server.httpPort() + "/v1/traces")
             .addHeader("foo", "bar");
   }
 
@@ -151,6 +153,7 @@ class OtlpHttpJsonSpanExporterTest {
     server.enqueue(successResponse());
     OtlpHttpJsonSpanExporter exporter =
         builder
+            //              .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
             .setEndpoint("https://" + canonicalHostName + ":" + server.httpsPort() + "/v1/traces")
             .setTrustedCertificates(
                 HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
