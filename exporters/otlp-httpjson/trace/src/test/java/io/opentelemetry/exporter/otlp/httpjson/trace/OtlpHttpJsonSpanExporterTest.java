@@ -8,7 +8,6 @@ package io.opentelemetry.exporter.otlp.httpjson.trace;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.rpc.Status;
 import com.linecorp.armeria.common.AggregatedHttpRequest;
@@ -26,7 +25,6 @@ import io.opentelemetry.api.trace.TraceFlags;
 import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.exporter.otlp.internal.ProtoJsonRequestBody;
 import io.opentelemetry.exporter.otlp.internal.traces.TraceRequestMarshaler;
-import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
@@ -189,14 +187,14 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(request.headers().get("Content-Type")).isEqualTo(APPLICATION_JSON.toString());
   }
 
-//  private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
-//    try {
-//      return ExportTraceServiceRequest.parseFrom(bytes);
-//    } catch (InvalidProtocolBufferException e) {
-//      throw new IllegalStateException("Unable to parse Protobuf request body.", e);
-//    }
-//  }
-//
+  //  private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
+  //    try {
+  //      return ExportTraceServiceRequest.parseFrom(bytes);
+  //    } catch (InvalidProtocolBufferException e) {
+  //      throw new IllegalStateException("Unable to parse Protobuf request body.", e);
+  //    }
+  //  }
+  //
   private static byte[] gzipDecompress(byte[] bytes) {
     try {
       Buffer result = new Buffer();
