@@ -189,14 +189,14 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(request.headers().get("Content-Type")).isEqualTo(APPLICATION_JSON.toString());
   }
 
-  private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
-    try {
-      return ExportTraceServiceRequest.parseFrom(bytes);
-    } catch (InvalidProtocolBufferException e) {
-      throw new IllegalStateException("Unable to parse Protobuf request body.", e);
-    }
-  }
-
+//  private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
+//    try {
+//      return ExportTraceServiceRequest.parseFrom(bytes);
+//    } catch (InvalidProtocolBufferException e) {
+//      throw new IllegalStateException("Unable to parse Protobuf request body.", e);
+//    }
+//  }
+//
   private static byte[] gzipDecompress(byte[] bytes) {
     try {
       Buffer result = new Buffer();
