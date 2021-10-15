@@ -146,26 +146,26 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(recorded.context().sessionProtocol().isMultiplex()).isFalse();
   }
 
-    @Test
-    void testExportTls() {
-      server.enqueue(successResponse());
-      OtlpHttpJsonSpanExporter exporter =
-          builder
-//              .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
-              .setEndpoint("https://127.0.0.1:" + server.httpsPort() + "/v1/traces")
-              .setTrustedCertificates(
-                  HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
-              .build();
+  @Test
+  void testExportTls() {
+    server.enqueue(successResponse());
+    OtlpHttpJsonSpanExporter exporter =
+        builder
+            //              .setEndpoint("https://localhost:" + server.httpsPort() + "/v1/traces")
+            .setEndpoint("https://127.0.0.1:" + server.httpsPort() + "/v1/traces")
+            .setTrustedCertificates(
+                HELD_CERTIFICATE.certificatePem().getBytes(StandardCharsets.UTF_8))
+            .build();
 
-      byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
-      RecordedRequest recorded = server.takeRequest();
-      AggregatedHttpRequest request = recorded.request();
-      assertRequestCommon(request);
-      assertThat(request.content().array()).isEqualTo(payload);
+    byte[] payload = exportAndAssertResult(exporter, /* expectedResult= */ true);
+    RecordedRequest recorded = server.takeRequest();
+    AggregatedHttpRequest request = recorded.request();
+    assertRequestCommon(request);
+    assertThat(request.content().array()).isEqualTo(payload);
 
-      // OkHttp does support HTTP/2 upgrade on TLS.
-      assertThat(recorded.context().sessionProtocol().isMultiplex()).isTrue();
-    }
+    // OkHttp does support HTTP/2 upgrade on TLS.
+    assertThat(recorded.context().sessionProtocol().isMultiplex()).isTrue();
+  }
 
   @Test
   void testExportGzipCompressed() {
@@ -189,13 +189,13 @@ class OtlpHttpJsonSpanExporterTest {
     assertThat(request.headers().get("Content-Type")).isEqualTo(APPLICATION_JSON.toString());
   }
 
-    private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
-      try {
-        return ExportTraceServiceRequest.parseFrom(bytes);
-      } catch (InvalidProtocolBufferException e) {
-        throw new IllegalStateException("Unable to parse Protobuf request body.", e);
-      }
+  private static ExportTraceServiceRequest parseRequestBody(byte[] bytes) {
+    try {
+      return ExportTraceServiceRequest.parseFrom(bytes);
+    } catch (InvalidProtocolBufferException e) {
+      throw new IllegalStateException("Unable to parse Protobuf request body.", e);
     }
+  }
 
   private static byte[] gzipDecompress(byte[] bytes) {
     try {
@@ -208,33 +208,33 @@ class OtlpHttpJsonSpanExporterTest {
     }
   }
 
-    @Test
-    void testServerError() {
-      server.enqueue(
-          buildResponse(
-              HttpStatus.INTERNAL_SERVER_ERROR,
-              Status.newBuilder().setMessage("Server error!").build()));
-      OtlpHttpJsonSpanExporter exporter = builder.build();
+  @Test
+  void testServerError() {
+    server.enqueue(
+        buildResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            Status.newBuilder().setMessage("Server error!").build()));
+    OtlpHttpJsonSpanExporter exporter = builder.build();
 
-      exportAndAssertResult(exporter, /* expectedResult= */ false);
-      LoggingEvent log =
-          logs.assertContains(
-              "Failed to export spans. Server responded with HTTP status code 500. Error message: Server error!");
-      assertThat(log.getLevel()).isEqualTo(Level.WARN);
-    }
+    exportAndAssertResult(exporter, /* expectedResult= */ false);
+    LoggingEvent log =
+        logs.assertContains(
+            "Failed to export spans. Server responded with HTTP status code 500. Error message: Server error!");
+    assertThat(log.getLevel()).isEqualTo(Level.WARN);
+  }
 
-    @Test
-    void testServerErrorParseError() {
-      server.enqueue(
-          HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_JSON, "Server error!"));
-      OtlpHttpJsonSpanExporter exporter = builder.build();
+  @Test
+  void testServerErrorParseError() {
+    server.enqueue(
+        HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, APPLICATION_JSON, "Server error!"));
+    OtlpHttpJsonSpanExporter exporter = builder.build();
 
-      exportAndAssertResult(exporter, /* expectedResult= */ false);
-      LoggingEvent log =
-          logs.assertContains(
-              "Failed to export spans. Server responded with HTTP status code 500. Error message: Unable to parse response body, HTTP status message:");
-      assertThat(log.getLevel()).isEqualTo(Level.WARN);
-    }
+    exportAndAssertResult(exporter, /* expectedResult= */ false);
+    LoggingEvent log =
+        logs.assertContains(
+            "Failed to export spans. Server responded with HTTP status code 500. Error message: Unable to parse response body, HTTP status message:");
+    assertThat(log.getLevel()).isEqualTo(Level.WARN);
+  }
 
   private static byte[] exportAndAssertResult(
       OtlpHttpJsonSpanExporter otlpHttpJsonSpanExporter, boolean expectedResult) {
