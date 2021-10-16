@@ -1,4 +1,3 @@
-1
 # OpenTelemetry - OTLP Trace Exporter - HTTP
 
 [![Javadocs][javadoc-image]][javadoc-url]
