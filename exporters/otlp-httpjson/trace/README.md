@@ -61,7 +61,7 @@ Open telemetry collector contribution project contains [example tracing collecto
 
 Another method to verify exporter message body output is to set up a dummy server that accepts and dumps request to STDOUT. Exporter reports error as it does not get proper collector response but dummy server still receives and dump requests.
 
-###Sample dummy server
+### Sample dummy server
 
 ```bash
 ncat -l -p 8080
