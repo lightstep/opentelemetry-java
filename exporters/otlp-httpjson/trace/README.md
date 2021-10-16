@@ -71,92 +71,92 @@ ncat -l -p 8080
 
 ```json
 {
-	"resourceSpans": [
-		{
-			"resource": {
-				"attributes": [
-					{
-						"key": "service.name",
-						"value": {
-							"stringValue": "test_http_json"
-						}
-					}
-				]
-			},
-			"instrumentationLibrarySpans": [
-				{
-					"instrumentationLibrary": {
-						"name": "io.opentelemetry.example.http.HttpClient"
-					},
-					"spans": [
-						{
-							"traceId": "4592f2b0ea46fd30e6712cb6a69e73c6",
-							"spanId": "40e3cf388832f9b8",
-							"name": "/",
-							"kind": "SPAN_KIND_CLIENT",
-							"startTimeUnixNano": "1634067072893000000",
-							"endTimeUnixNano": "1634067072901965000",
-							"attributes": [
-								{
-									"key": "component",
-									"value": {
-										"stringValue": "http"
-									}
-								},
-								{
-									"key": "attribute_boolean",
-									"value": {
-										"boolValue": true
-									}
-								},
-								{
-									"key": "component1",
-									"value": {
-										"stringValue": "test_component"
-									}
-								},
-								{
-									"key": "attribute_string",
-									"value": {
-										"stringValue": "value_string"
-									}
-								},
-								{
-									"key": "attribute_long",
-									"value": {
-										"intValue": "9223372036854775807"
-									}
-								},
-								{
-									"key": "http.url",
-									"value": {
-										"stringValue": "http://127.0.0.1:8090"
-									}
-								},
-								{
-									"key": "http.method",
-									"value": {
-										"stringValue": "GET"
-									}
-								},
-								{
-									"key": "attribute_double",
-									"value": {
-										"doubleValue": 1.7976931348623157e308
-									}
-								}
-							],
-							"events": [],
-							"links": [],
-							"status": {
-								"message": "test description",
-								"code": "STATUS_CODE_OK"
-							}
-						}
-					]
-				}
-			]
-		}
-	]
+    "resourceSpans": [
+        {
+            "resource": {
+                "attributes": [
+                    {
+                        "key": "service.name",
+                        "value": {
+                            "stringValue": "test_http_json"
+                        }
+                    }
+                ]
+            },
+            "instrumentationLibrarySpans": [
+                {
+                    "instrumentationLibrary": {
+                        "name": "io.opentelemetry.example.http.HttpClient"
+                    },
+                    "spans": [
+                        {
+                            "traceId": "4592f2b0ea46fd30e6712cb6a69e73c6",
+                            "spanId": "40e3cf388832f9b8",
+                            "name": "/",
+                            "kind": "SPAN_KIND_CLIENT",
+                            "startTimeUnixNano": "1634067072893000000",
+                            "endTimeUnixNano": "1634067072901965000",
+                            "attributes": [
+                                {
+                                    "key": "component",
+                                    "value": {
+                                        "stringValue": "http"
+                                    }
+                                },
+                                {
+                                    "key": "attribute_boolean",
+                                    "value": {
+                                        "boolValue": true
+                                    }
+                                },
+                                {
+                                    "key": "component1",
+                                    "value": {
+                                        "stringValue": "test_component"
+                                    }
+                                },
+                                {
+                                    "key": "attribute_string",
+                                    "value": {
+                                        "stringValue": "value_string"
+                                    }
+                                },
+                                {
+                                    "key": "attribute_long",
+                                    "value": {
+                                        "intValue": "9223372036854775807"
+                                    }
+                                },
+                                {
+                                    "key": "http.url",
+                                    "value": {
+                                        "stringValue": "http://127.0.0.1:8090"
+                                    }
+                                },
+                                {
+                                    "key": "http.method",
+                                    "value": {
+                                        "stringValue": "GET"
+                                    }
+                                },
+                                {
+                                    "key": "attribute_double",
+                                    "value": {
+                                        "doubleValue": 1.7976931348623157e308
+                                    }
+                                }
+                            ],
+                            "events": [],
+                            "links": [],
+                            "status": {
+                                "message": "test description",
+                                "code": "STATUS_CODE_OK"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }
 ```
